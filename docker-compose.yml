@@ -1,0 +1,47 @@
+version: "3"
+services:
+  django_db:
+    image: mariadb:latest
+    env_file: ./db/django.env
+  api_db:
+    image: mariadb:latest
+    env_file: ./db/api.env
+  db:
+    image: mariadb:latest
+    env_file: ./db/info.env
+  django:
+    build:
+      context: ./src/django
+      args:
+        - APP_NAME=eballot_django
+    command: ["./wait-for-it.sh", "-t", "90", "django_db:3306", "--", "python", "/code/manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - "django-data:/code"
+    ports:
+      - "80:8000"
+    depends_on:
+      - django_db
+  api:
+    build:
+      context: ./src/api
+      args:
+        - APP_NAME=eballot_api
+    command: ["./wait-for-it.sh", "-t", "90", "api_db:3306", "--", "python", "/code/manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - "api-data:/code"
+    ports:
+      - "19557:8000"
+    depends_on:
+      - api_db
+volumes:
+  api-data:
+    driver_opts:
+      type: none
+      device: $PWD/mnt/api
+      o: bind
+  django-data:
+    driver_opts:
+      type: none
+      device: $PWD/mnt/django   
+      o: bind
+
