@@ -16,7 +16,9 @@ services:
         - APP_NAME=eballot_django
     command: ["./wait-for-it.sh", "-t", "90", "django_db:3306", "--", "python", "/code/manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
-      - "django-data:/code"
+      - type: volume
+        source: django-data
+        target: /code
     ports:
       - "80:8000"
     depends_on:
@@ -28,20 +30,14 @@ services:
         - APP_NAME=eballot_api
     command: ["./wait-for-it.sh", "-t", "90", "api_db:3306", "--", "python", "/code/manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
-      - "api-data:/code"
+      - type: volume
+        source: api-data
+        target: /code
     ports:
       - "19557:8000"
     depends_on:
       - api_db
 volumes:
   api-data:
-    driver_opts:
-      type: none
-      device: $PWD/mnt/api
-      o: bind
   django-data:
-    driver_opts:
-      type: none
-      device: $PWD/mnt/django   
-      o: bind
 
