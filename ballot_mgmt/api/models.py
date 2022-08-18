@@ -5,17 +5,20 @@ from django.db import models
 # Create your models here.
 
 class BallotBox(models.Model):
-    id = models.IntegerField(primary_key=True, auto_created=True)
-    name = models.CharField(max_length=100, blank=False, null=False)
-    initTimestamp = models.DateTimeField(blank=False, null=False)
-    endTimestamp = models.DateTimeField(blank=False, null=False)
-    contractAddress = models.CharField(max_length=44, unique=True)
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    initTimestamp = models.DateTimeField()
+    endTimestamp = models.DateTimeField()
+    contractAddress = models.CharField(max_length=44, unique=True, blank=True, null=True)
     
 class Candidate(models.Model):
-    id = models.IntegerField(primary_key=True, auto_created=True)
-    name = models.CharField(max_length=32, blank=False, null=False)
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=32)
     imgPath = models.ImageField()
-    description = models.CharField(max_length=500, blank=False, null=False)
-    website = models.URLField()
-    motto = models.CharField(max_length=100)
-    ballotParent = models.ForeignKey(to=BallotBox, on_delete=models.CASCADE, blank=False, null=False)
+    description = models.CharField(max_length=500)
+    website = models.URLField(blank=True, null=True)
+    motto = models.CharField(max_length=100, blank=True, null=True)
+    ballotParent = models.ForeignKey(to=BallotBox, on_delete=models.CASCADE)
+    
+    def get_result(self, obj):
+        return 100
