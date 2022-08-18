@@ -6,8 +6,8 @@ from .serializers import BallotBoxSerializer, CandidateSerializer
 class BallotBoxView(viewsets.ModelViewSet):
     queryset = BallotBox.objects.all()
     serializer_class = BallotBoxSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser|permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -21,14 +21,17 @@ class BallotBoxView(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
     
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
     
 class CandidateView(viewsets.ModelViewSet):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser|permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
