@@ -21,6 +21,7 @@ from api import views
 
 routerApi = routers.DefaultRouter(trailing_slash=False)
 routerApi.register(r'ballot', views.BallotBoxView)
+routerApi.register(r'candidates', views.CandidateView)
 
 urlpatterns = [
     path('api/', include(routerApi.urls)),
