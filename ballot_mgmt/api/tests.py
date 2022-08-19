@@ -27,20 +27,20 @@ class BallotViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_ballot(self):
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         candidate = Candidate(
             name = 'Test Candidate',
-            imgPath = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballotParent = ballot
+            ballot_parent = ballot
         )
         
         ballot.save()
@@ -55,13 +55,13 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() - timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() - timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
             'name': 'Test',
-            'initTimestamp': initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'endTimestamp': endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -70,13 +70,13 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=11)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=11)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
             'name': 'Test',
-            'initTimestamp': initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'endTimestamp': endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -85,12 +85,12 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
-            'initTimestamp': initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'endTimestamp': endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -99,13 +99,13 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
             'name': 'Test',
-            'initTimestamp': initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'endTimestamp': endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
         })
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -115,13 +115,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
@@ -136,13 +136,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() - timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() - timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
@@ -157,13 +157,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
@@ -171,7 +171,7 @@ class BallotUpdateTest(APITestCase):
         newInitTimestamp = datetime.now() - timedelta(hours=1)
         
         response = self.client.patch('/api/ballot/' + str(ballot.id), {
-            'initTimestamp': newInitTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': newInitTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -180,21 +180,21 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
         
-        newEndTimestamp = initTimestamp - timedelta(hours=1)
+        newEndTimestamp = start_datetime - timedelta(hours=1)
         
         response = self.client.patch('/api/ballot/' + str(ballot.id), {
-            'initTimestamp': newEndTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': newEndTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -203,13 +203,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
@@ -224,13 +224,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
@@ -246,13 +246,13 @@ class BallotDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
@@ -265,13 +265,13 @@ class BallotDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
@@ -282,50 +282,50 @@ class BallotDeleteTest(APITestCase):
     
 class CandidateListTest(APITestCase):
     def test_get_candidate_inexistent_ballot(self):
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         candidate = Candidate(
             name = 'Test Candidate',
-            imgPath = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballotParent = ballot
+            ballot_parent = ballot
         )
         
         ballot.save()
         candidate.save()
         
-        response = self.client.get('/api/candidate/' + str(ballot.id + 1))
+        response = self.client.get('/api/candidates/' + str(ballot.id + 1))
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_candidate_ballot(self):
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         candidate = Candidate(
             name = 'Test Candidate',
-            imgPath = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballotParent = ballot
+            ballot_parent = ballot
         )
         
         ballot.save()
         candidate.save()
         
-        response = self.client.get('/api/candidate/' + str(ballot.id))
+        response = self.client.get('/api/candidates/' + str(ballot.id))
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
@@ -334,20 +334,20 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
 
-        response = self.client.post('/api/candidate/' + str(ballot.id), {
+        response = self.client.post('/api/candidates/' + str(ballot.id), {
             'name': 'Test Candidate',
-            'imgPath' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            'img_path' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
             'description' : 'Test description for Test Candidate',
         })
         
@@ -357,18 +357,18 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
 
-        response = self.client.post('/api/candidate/' + str(ballot.id), {})
+        response = self.client.post('/api/candidates/' + str(ballot.id), {})
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
@@ -376,20 +376,20 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         ballot.save()
 
-        response = self.client.post('/api/candidate/' + str(ballot.id), {
+        response = self.client.post('/api/candidates/' + str(ballot.id), {
             'name': 'Test Candidate',
-            'imgPath' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            'img_path' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
             'description' : 'Test description for Test Candidate',
         })
         
@@ -400,26 +400,26 @@ class CandidateDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         candidate = Candidate(
             name = 'Test Candidate',
-            imgPath = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballotParent = ballot
+            ballot_parent = ballot
         )
         
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidate/' + str(ballot.id + 1) + str(candidate.id))
+        response = self.client.delete('/api/candidates/' + str(ballot.id + 1) + str(candidate.id))
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         
@@ -427,26 +427,26 @@ class CandidateDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         candidate = Candidate(
             name = 'Test Candidate',
-            imgPath = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballotParent = ballot
+            ballot_parent = ballot
         )
         
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidate/' + str(ballot.id) + str(candidate.id + 1))
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + str(candidate.id + 1))
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         
@@ -454,26 +454,26 @@ class CandidateDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        initTimestamp = datetime.now() + timedelta(hours=1)
-        endTimestamp = datetime.now() + timedelta(hours=10)
+        start_datetime = datetime.now() + timedelta(hours=1)
+        end_datetime = datetime.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            initTimestamp = initTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            endTimestamp = endTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
         candidate = Candidate(
             name = 'Test Candidate',
-            imgPath = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballotParent = ballot
+            ballot_parent = ballot
         )
         
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidate/' + str(ballot.id) + str(candidate.id))
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + str(candidate.id))
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
     
