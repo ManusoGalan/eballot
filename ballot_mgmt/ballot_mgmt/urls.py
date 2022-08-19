@@ -18,12 +18,11 @@ from django.urls import path, include
 from rest_framework import routers
 from api import views
 
-
-routerApi = routers.DefaultRouter(trailing_slash=False)
-routerApi.register(r'ballot', views.BallotBoxView)
-routerApi.register(r'candidates', views.CandidateView)
+router = routers.DefaultRouter(trailing_slash=False)
+router.register(r'ballot', views.BallotBoxView)
+router.register(r'candidates/(?P<bk>\d+)', views.CandidateView)
 
 urlpatterns = [
-    path('api/', include(routerApi.urls)),
+    path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

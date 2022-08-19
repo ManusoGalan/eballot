@@ -1,5 +1,4 @@
-from dataclasses import fields
-from pyexpat import model
+from datetime import datetime
 from rest_framework import serializers
 
 from .models import BallotBox, Candidate
@@ -22,6 +21,10 @@ class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = ['id', 'name', 'img_path', 'description', 'website', 'motto']
+        
+    def validate(self, attrs):
+        attrs['ballot_parent'] = BallotBox.objects.get(id=self.context['ballot_parent'])
+        return super().validate(attrs)
 class SimpleCandidateSerializer(serializers.ModelSerializer):
     result = serializers.SerializerMethodField()
     class Meta:

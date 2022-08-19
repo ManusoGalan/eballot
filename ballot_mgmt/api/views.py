@@ -1,4 +1,5 @@
-from rest_framework import viewsets, permissions, authentication
+from rest_framework import viewsets, permissions, authentication, mixins, response
+from django import http
 from .models import BallotBox, Candidate
 from .serializers import BallotBoxSerializer, CandidateSerializer
 
@@ -27,14 +28,35 @@ class BallotBoxView(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
     
-class CandidateView(viewsets.ModelViewSet):
+# Instead of inherit from ModelViewSet, we inherit from only necesary mixins
+class CandidateView(mixins.ListModelMixin,
+                    mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
     queryset = Candidate.objects.all()
     serializer_class = CandidateSerializer
     permission_classes = [permissions.IsAdminUser|permissions.IsAuthenticatedOrReadOnly]
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     
+    def get_queryset(self):
+        # If ballot does not exist, raise 404
+        try:
+            BallotBox.objects.get(id=self.kwargs['bk'])
+        except:
+            raise http.Http404
+        
+        return Candidate.objects.filter(ballot_parent_id=self.kwargs['bk'])
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        
+        if(self.request.method == 'POST'):
+            context.update({"ballot_parent_id": self.kwargs['bk']})
+            
+        return context
+    
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        return super().list(self, request, *args, **kwargs)
     
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)

@@ -19,6 +19,3 @@ class Candidate(models.Model):
     website = models.URLField(blank=True, null=True)
     motto = models.CharField(max_length=100, blank=True, null=True)
     ballot_parent = models.ForeignKey(to=BallotBox, on_delete=models.CASCADE)
-    
-    def get_result(self, obj):
-        return 100
