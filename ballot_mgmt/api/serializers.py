@@ -8,7 +8,7 @@ class BallotBoxSerializer(serializers.ModelSerializer):
     candidates = serializers.SerializerMethodField()
     class Meta:
         model = BallotBox
-        fields = ['id', 'name', 'initTimestamp', 'endTimestamp', 'candidates']
+        fields = ['id', 'name', 'start_datetime', 'end_datetime', 'candidates']
         
     def get_candidates(self, ballot):
         candidateQuery = Candidate.objects.filter(ballotParent = ballot)
@@ -21,8 +21,11 @@ class BallotBoxContractAddressSerializer(serializers.ModelSerializer):
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
-        fields = ['id', 'name', 'imgPath', 'description', 'website', 'motto', 'ballotParent']
+        fields = ['id', 'name', 'img_path', 'description', 'website', 'motto']
         
+    def validate(self, attrs):
+        attrs['ballot_parent'] = BallotBox.objects.get(id=self.context['ballot_parent'])
+        return super().validate(attrs)
 class SimpleCandidateSerializer(serializers.ModelSerializer):
     result = serializers.SerializerMethodField()
     class Meta:
