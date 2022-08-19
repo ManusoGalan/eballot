@@ -325,6 +325,8 @@ class CandidateListTest(APITestCase):
         ballot.save()
         candidate.save()
         
+        print("Ballot's Id is " + str(ballot.id))
+        
         response = self.client.get('/api/candidates/' + str(ballot.id))
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -419,7 +421,7 @@ class CandidateDeleteTest(APITestCase):
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidates/' + str(ballot.id + 1) + str(candidate.id))
+        response = self.client.delete('/api/candidates/' + str(ballot.id + 1) + '/' + str(candidate.id))
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         
@@ -446,7 +448,7 @@ class CandidateDeleteTest(APITestCase):
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidates/' + str(ballot.id) + str(candidate.id + 1))
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/' + str(candidate.id + 1))
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         
@@ -473,7 +475,7 @@ class CandidateDeleteTest(APITestCase):
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidates/' + str(ballot.id) + str(candidate.id))
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/' + str(candidate.id))
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
     
