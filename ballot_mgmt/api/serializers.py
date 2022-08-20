@@ -51,7 +51,7 @@ class CandidateCreateSerializer(serializers.ModelSerializer):
         
     def validate(self, attrs):
         attrs['ballot_parent'] = BallotBox.objects.get(id=self.context['ballot_parent_id'])
-        attrs['id_for_ballot'] = int(self.context["last_candidate_id"]) + 1
+        attrs['pk_inside_ballot'] = int(self.context["last_candidate_id"]) + 1
         
         return super().validate(attrs)
     
@@ -64,7 +64,7 @@ class CandidateRetrieveForBallotSerializer(serializers.ModelSerializer):
     result = serializers.SerializerMethodField()
     class Meta:
         model = Candidate
-        fields = ['id', 'name', 'result']
+        fields = ['pk_inside_ballot', 'name', 'result']
         
     def get_result(self, candidate):
         return 100
