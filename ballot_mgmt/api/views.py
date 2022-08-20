@@ -66,7 +66,12 @@ class CandidateView(mixins.ListModelMixin,
         context = super().get_serializer_context()
         
         if(self.request.method == 'POST'):
-            context.update({"ballot_parent_id": self.kwargs['bk']})
+            # We need to check again on post if ballot exist, as get_object is not called during POST calls
+            try:
+                shortcuts.get_object_or_404(BallotBox, id=self.kwargs['bk'])
+                context.update({"ballot_parent_id": self.kwargs['bk']})
+            except:
+                raise http.Http404
 
             last_candidate_for_ballot = Candidate.objects.order_by('pk_inside_ballot').filter(ballot_parent_id=self.kwargs['bk']).last()
             
