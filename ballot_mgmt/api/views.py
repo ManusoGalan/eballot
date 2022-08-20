@@ -1,14 +1,22 @@
-from rest_framework import viewsets, permissions, authentication, mixins, response
+from datetime import datetime, timezone
+from rest_framework import viewsets, permissions, authentication, mixins, response, status
 from django import http
 from .models import BallotBox, Candidate
-from .serializers import BallotBoxSerializer, CandidateSerializer
+from .serializers import BallotBoxCreateOrUpdateSerializer, BallotBoxListSerializer, BallotBoxRetrieveSerializer, CandidateCreateSerializer, CandidateListSerializer
 
 # Create your views here.
 class BallotBoxView(viewsets.ModelViewSet):
     queryset = BallotBox.objects.all()
-    serializer_class = BallotBoxSerializer
     permission_classes = [permissions.IsAdminUser|permissions.IsAuthenticatedOrReadOnly]
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
+    
+    def get_serializer_class(self):
+        if(self.action == 'list'):
+            return BallotBoxListSerializer
+        if(self.action == 'retrieve'):
+            return BallotBoxRetrieveSerializer
+        if(self.action == 'create' | self.action == 'update' | self.action == 'partial_update'):
+            return BallotBoxCreateOrUpdateSerializer
     
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -33,13 +41,11 @@ class CandidateView(mixins.ListModelMixin,
                     mixins.CreateModelMixin,
                     mixins.DestroyModelMixin,
                     viewsets.GenericViewSet):
-    queryset = Candidate.objects.all()
-    serializer_class = CandidateSerializer
     permission_classes = [permissions.IsAdminUser|permissions.IsAuthenticatedOrReadOnly]
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
     
+    # As we don't want all candidates, instead of using queryset attribute, we have get filter the ones we want
     def get_queryset(self):
-        # If ballot does not exist, raise 404
         try:
             BallotBox.objects.get(id=self.kwargs['bk'])
         except:
@@ -47,6 +53,7 @@ class CandidateView(mixins.ListModelMixin,
         
         return Candidate.objects.filter(ballot_parent_id=self.kwargs['bk'])
     
+    # As the ballot and the candidate number on ballot aren't provided by the user, we pass them to the serializer as context on POST calls
     def get_serializer_context(self):
         context = super().get_serializer_context()
         
@@ -57,6 +64,12 @@ class CandidateView(mixins.ListModelMixin,
             context.update({"last_candidate_id": last_candidate_for_ballot.pk_inside_ballot})
             
         return context
+    
+    def get_serializer_class(self):
+        if(self.action == 'list'):
+            return CandidateListSerializer
+        if(self.action == 'create'):
+            return CandidateCreateSerializer
     
     def list(self, request, *args, **kwargs):
         return super().list(self, request, *args, **kwargs)

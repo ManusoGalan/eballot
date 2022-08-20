@@ -3,16 +3,12 @@ from rest_framework import serializers
 
 from .models import BallotBox, Candidate
 
-class BallotBoxSerializer(serializers.ModelSerializer):
-    candidates = serializers.SerializerMethodField()
+class BallotBoxCreateOrUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BallotBox
-        fields = ['id', 'name', 'start_datetime', 'end_datetime', 'candidates']
-        
-    def get_candidates(self, ballot):
-        candidateQuery = Candidate.objects.filter(ballot_parent = ballot)
-        return SimpleCandidateSerializer(candidateQuery, many = True).data
+        fields = ['id', 'name', 'start_datetime', 'end_datetime']
     
+    # Here, instead of calling validate(), we call validate_<field_name>(), which valdiates that one field
     def validate_start_datetime(self, value):
         if value < datetime.now(timezone.utc):
             raise serializers.ValidationError('Start datetime must be before creation datetime')
@@ -25,22 +21,46 @@ class BallotBoxSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('End datetime must be after start datetime')
         
         return value
+    
+class BallotBoxListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BallotBox
+        fields = ['id', 'name', 'start_datetime', 'end_datetime']
+    
+class BallotBoxRetrieveSerializer(serializers.ModelSerializer):
+    candidates = serializers.SerializerMethodField()
+    class Meta:
+        model = BallotBox
+        fields = ['id', 'name', 'start_datetime', 'end_datetime', 'candidates']
+    
+    # As candidates aren't part of the model, we have to tell Django how to retrieve them   
+    def get_candidates(self, instance):
+        candidateQuery = Candidate.objects.filter(ballot_parent = instance)
+        return CandidateRetrieveForBallotSerializer(candidateQuery, many = True).data
+    
         
-class BallotBoxContractAddressSerializer(serializers.ModelSerializer):
+class BallotBoxExternalUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BallotBox
         fields = ['contractAddress']
         
-class CandidateSerializer(serializers.ModelSerializer):
+class CandidateCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
-        fields = ['id', 'name', 'img_path', 'description', 'website', 'motto']
+        fields = ['name', 'img_path', 'description', 'website', 'motto']
         
     def validate(self, attrs):
         attrs['ballot_parent'] = BallotBox.objects.get(id=self.context['ballot_parent_id'])
+        attrs['id_for_ballot'] = int(self.context["last_candidate_id"]) + 1
+        
         return super().validate(attrs)
     
-class SimpleCandidateSerializer(serializers.ModelSerializer):
+class CandidateListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Candidate
+        fields = ['pk_inside_ballot', 'name', 'img_path', 'description', 'website', 'motto']
+    
+class CandidateRetrieveForBallotSerializer(serializers.ModelSerializer):
     result = serializers.SerializerMethodField()
     class Meta:
         model = Candidate

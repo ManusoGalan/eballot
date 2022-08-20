@@ -19,8 +19,8 @@ from rest_framework import routers
 from api import views
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register(r'ballot', views.BallotBoxView)
-router.register(r'candidates/(?P<bk>\d+)', views.CandidateView)
+router.register(r'ballot', views.BallotBoxView, basename='ballot')
+router.register(r'candidates/(?P<bk>\d+)', views.CandidateView, basename='candidates')
 
 urlpatterns = [
     path('api/', include(router.urls)),
