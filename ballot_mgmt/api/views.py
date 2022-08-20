@@ -15,7 +15,7 @@ class BallotBoxView(viewsets.ModelViewSet):
             return BallotBoxListSerializer
         if(self.action == 'retrieve'):
             return BallotBoxRetrieveSerializer
-        if(self.action == 'create' | self.action == 'update' | self.action == 'partial_update'):
+        if(self.action == 'create' or self.action == 'update' or self.action == 'partial_update'):
             return BallotBoxCreateOrUpdateSerializer
     
     def list(self, request, *args, **kwargs):
@@ -49,8 +49,8 @@ class CandidateView(mixins.ListModelMixin,
         try:
             BallotBox.objects.get(id=self.kwargs['bk'])
         except:
-            raise http.Http404
-        
+                raise http.Http404
+    
         return Candidate.objects.filter(ballot_parent_id=self.kwargs['bk'])
     
     # As the ballot and the candidate number on ballot aren't provided by the user, we pass them to the serializer as context on POST calls
@@ -59,9 +59,13 @@ class CandidateView(mixins.ListModelMixin,
         
         if(self.request.method == 'POST'):
             context.update({"ballot_parent_id": self.kwargs['bk']})
-            
+
             last_candidate_for_ballot = Candidate.objects.order_by('pk_inside_ballot').filter(ballot_parent_id=self.kwargs['bk']).last()
-            context.update({"last_candidate_id": last_candidate_for_ballot.pk_inside_ballot})
+            
+            if last_candidate_for_ballot is not None:
+                context.update({"last_candidate_id": last_candidate_for_ballot.pk_inside_ballot})
+            else:
+                context.update({"last_candidate_id": 0})
             
         return context
     
