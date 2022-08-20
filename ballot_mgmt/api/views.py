@@ -53,6 +53,9 @@ class CandidateView(mixins.ListModelMixin,
         if(self.request.method == 'POST'):
             context.update({"ballot_parent_id": self.kwargs['bk']})
             
+            last_candidate_for_ballot = Candidate.objects.order_by('pk_inside_ballot').filter(ballot_parent_id=self.kwargs['bk']).last()
+            context.update({"last_candidate_id": last_candidate_for_ballot.pk_inside_ballot})
+            
         return context
     
     def list(self, request, *args, **kwargs):
