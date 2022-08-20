@@ -260,6 +260,25 @@ class BallotDeleteTest(APITestCase):
         response = self.client.delete('/api/ballot/' + str(ballot.id + 1))
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_delete_started_ballot(self):
+        admin_user = User.objects.create(username='admin', is_staff=True)
+        self.client.force_authenticate(user=admin_user)
+        
+        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        
+        ballot.save()
+        
+        response = self.client.delete('/api/ballot/' + str(ballot.id))
+        
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         
     def test_delete_ballot(self):
         admin_user = User.objects.create(username='admin', is_staff=True)
@@ -374,6 +393,29 @@ class CandidateCreateTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
+    def test_create_candidate_for_started_ballot(self):
+        admin_user = User.objects.create(username='admin', is_staff=True)
+        self.client.force_authenticate(user=admin_user)
+        
+        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        
+        ballot.save()
+
+        response = self.client.post('/api/candidates/' + str(ballot.id), {
+            'name': 'Test Candidate',
+            'img_path' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            'description' : 'Test description for Test Candidate',
+        })
+        
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+    
     def test_create_candidate_for_ballot(self):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
@@ -451,6 +493,33 @@ class CandidateDeleteTest(APITestCase):
         response = self.client.delete('/api/candidates/' + str(ballot.id) + '/' + str(candidate.id + 1))
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+       
+    def test_delete_candidate_for_started_ballot(self):
+        admin_user = User.objects.create(username='admin', is_staff=True)
+        self.client.force_authenticate(user=admin_user)
+        
+        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        
+        candidate = Candidate(
+            name = 'Test Candidate',
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            description = 'Test description for Test Candidate',
+            ballot_parent = ballot
+        )
+        
+        ballot.save()
+        candidate.save()
+
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/' + str(candidate.id))
+        
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         
     def test_delete_candidate_for_ballot(self):
         admin_user = User.objects.create(username='admin', is_staff=True)
