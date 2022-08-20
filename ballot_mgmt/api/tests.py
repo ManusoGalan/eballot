@@ -8,8 +8,6 @@ from django.core.files.images import ImageFile
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from .serializers import BallotBoxSerializer, CandidateSerializer
-
 from .models import BallotBox, Candidate
 
 # Create your tests here.
@@ -36,15 +34,7 @@ class BallotViewTest(APITestCase):
             end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
         
-        candidate = Candidate(
-            name = 'Test Candidate',
-            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
-            description = 'Test description for Test Candidate',
-            ballot_parent = ballot
-        )
-        
         ballot.save()
-        candidate.save()
         
         response = self.client.get('/api/ballot/1')
         
@@ -314,7 +304,8 @@ class CandidateListTest(APITestCase):
             name = 'Test Candidate',
             img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballot_parent = ballot
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
         )
         
         ballot.save()
@@ -338,7 +329,8 @@ class CandidateListTest(APITestCase):
             name = 'Test Candidate',
             img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballot_parent = ballot
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
         )
         
         ballot.save()
@@ -366,7 +358,7 @@ class CandidateCreateTest(APITestCase):
         
         ballot.save()
 
-        response = self.client.post('/api/candidates/' + str(ballot.id), {
+        response = self.client.post('/api/candidates/' + str(ballot.id + 1), {
             'name': 'Test Candidate',
             'img_path' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
             'description' : 'Test description for Test Candidate',
@@ -457,13 +449,14 @@ class CandidateDeleteTest(APITestCase):
             name = 'Test Candidate',
             img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballot_parent = ballot
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
         )
         
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidates/' + str(ballot.id + 1) + '/' + str(candidate.id))
+        response = self.client.delete('/api/candidates/' + str(ballot.id + 1) + '/1')
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         
@@ -484,13 +477,14 @@ class CandidateDeleteTest(APITestCase):
             name = 'Test Candidate',
             img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballot_parent = ballot
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
         )
         
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/' + str(candidate.id + 1))
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/1')
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
        
@@ -511,13 +505,14 @@ class CandidateDeleteTest(APITestCase):
             name = 'Test Candidate',
             img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballot_parent = ballot
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
         )
         
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/' + str(candidate.id))
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/0')
         
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         
@@ -538,13 +533,14 @@ class CandidateDeleteTest(APITestCase):
             name = 'Test Candidate',
             img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
             description = 'Test description for Test Candidate',
-            ballot_parent = ballot
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
         )
         
         ballot.save()
         candidate.save()
 
-        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/' + str(candidate.id))
+        response = self.client.delete('/api/candidates/' + str(ballot.id) + '/0')
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
     
