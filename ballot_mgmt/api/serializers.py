@@ -30,14 +30,16 @@ class BallotBoxContractAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = BallotBox
         fields = ['contractAddress']
+        
 class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = ['id', 'name', 'img_path', 'description', 'website', 'motto']
         
     def validate(self, attrs):
-        attrs['ballot_parent'] = BallotBox.objects.get(id=self.context['ballot_parent'])
+        attrs['ballot_parent'] = BallotBox.objects.get(id=self.context['ballot_parent_id'])
         return super().validate(attrs)
+    
 class SimpleCandidateSerializer(serializers.ModelSerializer):
     result = serializers.SerializerMethodField()
     class Meta:
@@ -46,3 +48,4 @@ class SimpleCandidateSerializer(serializers.ModelSerializer):
         
     def get_result(self, candidate):
         return 100
+    
