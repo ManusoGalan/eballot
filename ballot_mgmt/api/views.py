@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from rest_framework import viewsets, permissions, authentication, mixins, response, status
-from django import http
+from django import http, shortcuts
 from .models import BallotBox, Candidate
 from .serializers import BallotBoxCreateOrUpdateSerializer, BallotBoxListSerializer, BallotBoxRetrieveSerializer, CandidateCreateSerializer, CandidateListSerializer
 
@@ -47,11 +47,19 @@ class CandidateView(mixins.ListModelMixin,
     # As we don't want all candidates, instead of using queryset attribute, we have get filter the ones we want
     def get_queryset(self):
         try:
-            BallotBox.objects.get(id=self.kwargs['bk'])
+            return shortcuts.get_list_or_404(Candidate, ballot_parent_id=self.kwargs['bk'])
         except:
+            try:
+                shortcuts.get_object_or_404(BallotBox, id=self.kwargs['bk'])
+                return []
+            except:
                 raise http.Http404
     
-        return Candidate.objects.filter(ballot_parent_id=self.kwargs['bk'])
+    def get_object(self):
+        try:
+            return shortcuts.get_object_or_404(Candidate, ballot_parent_id = self.kwargs['bk'], pk_inside_ballot = self.kwargs['pk'])
+        except:
+            raise http.Http404
     
     # As the ballot and the candidate number on ballot aren't provided by the user, we pass them to the serializer as context on POST calls
     def get_serializer_context(self):
