@@ -104,7 +104,14 @@ class CandidateView(mixins.ListModelMixin,
         if ballot.start_datetime < datetime.now(timezone.utc):
             return response.Response("Votation " + str(ballot.id) + " has started and can't be changed", status.HTTP_409_CONFLICT)
         
-        return super().create(request, *args, **kwargs)
+        super().create(request, *args, **kwargs)
+        
+        # From this point on, we treat the petition as a GET petition
+        self.action = 'list'
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED, headers=self.get_success_headers(serializer.data))
     
     def destroy(self, request, *args, **kwargs):
         ballot = shortcuts.get_object_or_404(BallotBox, id=kwargs['bk'])
