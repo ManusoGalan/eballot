@@ -64,11 +64,11 @@ class BallotViewTest(APITestCase):
         response = self.client.get('/api/ballot/' + str(ballot.id))
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("result" not in response.data['candidates'][0])
+        self.assertTrue(response.data['candidates'][0]["result"] is None)
         
     def test_get_finished_ballot_with_candidates(self):
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = datetime.now(timezone.utc) - timedelta(hours=10)
+        end_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
         
         ballot = BallotBox(
             name = 'Test',
@@ -90,7 +90,7 @@ class BallotViewTest(APITestCase):
         response = self.client.get('/api/ballot/' + str(ballot.id))
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("result" in response.data['candidates'][0])
+        self.assertTrue(response.data['candidates'][0]["result"] is not None)
     
 class BallotCreateTest(APITestCase):
     def test_create_ballot_with_early_initTimestamp(self):
