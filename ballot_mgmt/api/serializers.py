@@ -67,5 +67,8 @@ class CandidateRetrieveForBallotSerializer(serializers.ModelSerializer):
         fields = ['pk_inside_ballot', 'name', 'result']
         
     def get_result(self, candidate):
-        return 100
+        if(candidate.ballot_parent.end_datetime < datetime.now(timezone.utc)):
+            return 100
+
+        return None
     
