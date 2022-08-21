@@ -85,7 +85,7 @@ class BallotCreateTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
-    def test_create_ballot_with_ok_data(self):
+    def test_create_ballot(self):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
@@ -141,7 +141,7 @@ class BallotUpdateTest(APITestCase):
             'name': 'Test 2'
         })
         
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         
     def test_update_ballot_with_early_initTimestamp(self):
         admin_user = User.objects.create(username='admin', is_staff=True)
@@ -210,7 +210,7 @@ class BallotUpdateTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         
-    def test_update_ballot_with_ok_data(self):
+    def test_update_ballot(self):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
