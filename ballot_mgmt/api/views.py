@@ -17,7 +17,7 @@ class BallotBoxView(viewsets.ModelViewSet):
             return BallotBoxRetrieveSerializer
         if(self.action == 'create' or self.action == 'update' or self.action == 'partial_update'):
             return BallotBoxCreateOrUpdateSerializer
-    
+        
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
     
@@ -73,7 +73,7 @@ class CandidateView(mixins.ListModelMixin,
     def get_serializer_context(self):
         context = super().get_serializer_context()
         
-        if(self.request.method == 'POST'):
+        if(self.action == 'create'):
             # We need to check again on post if ballot exist, as get_object is not called during POST calls
             try:
                 shortcuts.get_object_or_404(BallotBox, id=self.kwargs['bk'])
