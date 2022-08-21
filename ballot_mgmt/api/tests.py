@@ -36,9 +36,61 @@ class BallotViewTest(APITestCase):
         
         ballot.save()
         
-        response = self.client.get('/api/ballot/1')
+        response = self.client.get('/api/ballot/' + str(ballot.id))
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+    def test_get_ballot_with_candidates(self):
+        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        
+        candidate = Candidate(
+            name = 'Test Candidate',
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            description = 'Test description for Test Candidate',
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
+        )
+        
+        ballot.save()
+        candidate.save()
+        
+        response = self.client.get('/api/ballot/' + str(ballot.id))
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue("result" not in response.data['candidates'][0])
+        
+    def test_get_finished_ballot_with_candidates(self):
+        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        
+        candidate = Candidate(
+            name = 'Test Candidate',
+            img_path = ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            description = 'Test description for Test Candidate',
+            ballot_parent = ballot,
+            pk_inside_ballot = 0
+        )
+        
+        ballot.save()
+        candidate.save()
+        
+        response = self.client.get('/api/ballot/' + str(ballot.id))
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue("result" in response.data['candidates'][0])
     
 class BallotCreateTest(APITestCase):
     def test_create_ballot_with_early_initTimestamp(self):
@@ -315,6 +367,22 @@ class CandidateListTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
+    def test_get_candidate_empty_ballot(self):
+        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        
+        ballot.save()
+        
+        response = self.client.get('/api/candidates/' + str(ballot.id))
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
     def test_get_candidate_ballot(self):
         start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
         end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
@@ -335,8 +403,6 @@ class CandidateListTest(APITestCase):
         
         ballot.save()
         candidate.save()
-        
-        print("Ballot's Id is " + str(ballot.id))
         
         response = self.client.get('/api/candidates/' + str(ballot.id))
         
