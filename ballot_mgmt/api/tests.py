@@ -497,6 +497,36 @@ class CandidateCreateTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     
+    def test_create_multiple_candidate_for_ballot(self):
+        admin_user = User.objects.create(username='admin', is_staff=True)
+        self.client.force_authenticate(user=admin_user)
+        
+        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
+        
+        ballot.save()
+
+        response_first_candidate = self.client.post('/api/candidates/' + str(ballot.id), {
+            'name': 'Test Candidate',
+            'img_path' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            'description' : 'Test description for Test Candidate',
+        })
+        
+        response_second_candidate = self.client.post('/api/candidates/' + str(ballot.id), {
+            'name': 'Test Candidate',
+            'img_path' : ImageFile(open('api/test/data/empty_user.png', 'rb')),
+            'description' : 'Test description for Test Candidate',
+        })
+        
+        self.assertEqual(response_first_candidate.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response_second_candidate.status_code, status.HTTP_201_CREATED)
+    
 class CandidateDeleteTest(APITestCase):
     def test_delete_inexistent_or_existent_candidate_for_inexistent_ballot(self):
         admin_user = User.objects.create(username='admin', is_staff=True)
