@@ -18,6 +18,9 @@ from django.urls import path, include
 from rest_framework import routers
 from api import views
 
+from django.conf.urls.static import static
+from django.conf import settings
+
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'ballot', views.BallotBoxView, basename='ballot')
 router.register(r'candidates/(?P<bk>\d+)', views.CandidateView, basename='candidates')
@@ -26,3 +29,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
