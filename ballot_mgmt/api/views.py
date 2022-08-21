@@ -28,12 +28,20 @@ class BallotBoxView(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
     
     def update(self, request, *args, **kwargs):
+        ballot = shortcuts.get_object_or_404(BallotBox, id=kwargs['pk'])
+        if ballot.start_datetime < datetime.now(timezone.utc):
+            return response.Response("Votation " + str(ballot.id) + " has started and can't be changed", status.HTTP_409_CONFLICT)
+        
         return super().update(request, *args, **kwargs)
     
     def partial_update(self, request, *args, **kwargs):
         return super().partial_update(request, *args, **kwargs)
     
     def destroy(self, request, *args, **kwargs):
+        ballot = shortcuts.get_object_or_404(BallotBox, id=kwargs['pk'])
+        if ballot.start_datetime < datetime.now(timezone.utc):
+            return response.Response("Votation " + str(ballot.id) + " has started and can't be changed", status.HTTP_409_CONFLICT)
+        
         return super().destroy(request, *args, **kwargs)
     
 # Instead of inherit from ModelViewSet, we inherit from only necesary mixins
@@ -92,8 +100,15 @@ class CandidateView(mixins.ListModelMixin,
         return super().list(self, request, *args, **kwargs)
     
     def create(self, request, *args, **kwargs):
+        ballot = shortcuts.get_object_or_404(BallotBox, id=kwargs['bk'])
+        if ballot.start_datetime < datetime.now(timezone.utc):
+            return response.Response("Votation " + str(ballot.id) + " has started and can't be changed", status.HTTP_409_CONFLICT)
+        
         return super().create(request, *args, **kwargs)
     
     def destroy(self, request, *args, **kwargs):
+        ballot = shortcuts.get_object_or_404(BallotBox, id=kwargs['bk'])
+        if ballot.start_datetime < datetime.now(timezone.utc):
+            return response.Response("Votation " + str(ballot.id) + " has started and can't be changed", status.HTTP_409_CONFLICT)
         return super().destroy(request, *args, **kwargs)
     
