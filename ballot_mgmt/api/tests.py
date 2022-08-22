@@ -640,3 +640,26 @@ class CandidateDeleteTest(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
     
+class ContratctAddressViewTest(APITestCase):
+    def test_get_inexistent_ballot(self):
+        response = self.client.get('/api/contract/1')
+        
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_get_ballot(self):
+        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
+        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        
+        ballot = BallotBox(
+            name = 'Test',
+            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            contract_address = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+        )
+        
+        ballot.save()
+        
+        response = self.client.get('/api/contract/' + str(ballot.id))
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['contract_address'], "0x71C7656EC7ab88b098defB751B7401B5f6d8976F")
