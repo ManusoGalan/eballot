@@ -39,10 +39,10 @@ class BallotBoxRetrieveSerializer(serializers.ModelSerializer):
         return CandidateRetrieveForBallotSerializer(candidateQuery, many = True).data
     
         
-class BallotBoxExternalUpdateSerializer(serializers.ModelSerializer):
+class BallotBoxContractAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = BallotBox
-        fields = ['contractAddress']
+        fields = ['contract_address']
         
 class CandidateCreateSerializer(serializers.ModelSerializer):
     class Meta:

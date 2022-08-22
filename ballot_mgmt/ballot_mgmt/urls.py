@@ -24,6 +24,7 @@ from django.conf import settings
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'ballot', views.BallotBoxView, basename='ballot')
 router.register(r'candidates/(?P<bk>\d+)', views.CandidateView, basename='candidates')
+router.register(r'contract', views.ContractView, basename='contract')
 
 urlpatterns = [
     path('api/', include(router.urls)),

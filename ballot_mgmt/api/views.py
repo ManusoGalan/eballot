@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from rest_framework import viewsets, permissions, authentication, mixins, response, status
 from django import http, shortcuts
 from .models import BallotBox, Candidate
-from .serializers import BallotBoxCreateOrUpdateSerializer, BallotBoxListSerializer, BallotBoxRetrieveSerializer, CandidateCreateSerializer, CandidateListSerializer
+from .serializers import BallotBoxCreateOrUpdateSerializer, BallotBoxListSerializer, BallotBoxRetrieveSerializer, BallotBoxContractAddressSerializer, CandidateCreateSerializer, CandidateListSerializer
 
 # Create your views here.
 class BallotBoxView(viewsets.ModelViewSet):
@@ -112,4 +112,16 @@ class CandidateView(mixins.ListModelMixin,
         if ballot.start_datetime < datetime.now(timezone.utc):
             return response.Response("Votation " + str(ballot.id) + " has started and can't be changed", status.HTTP_409_CONFLICT)
         return super().destroy(request, *args, **kwargs)
+    
+# Instead of inherit from ModelViewSet, we inherit from only necesary mixins
+
+class ContractView(mixins.RetrieveModelMixin,
+                   viewsets.GenericViewSet):
+    queryset = BallotBox.objects.all()
+    serializer_class = BallotBoxContractAddressSerializer
+    permission_classes = [permissions.IsAdminUser|permissions.IsAuthenticatedOrReadOnly]
+    authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
+    
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
     
