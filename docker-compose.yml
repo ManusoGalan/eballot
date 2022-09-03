@@ -4,34 +4,32 @@ services:
   mgmt-db:
     image: postgres
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=
+      - POSTGRES_USER=
+      - POSTGRES_PASSWORD=
   mgmt:
     build: ./ballot_mgmt
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - "8000:8000"
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    depends_on:
-      - mgmt-db
-  interface-db:
-    image: postgres
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-  interface:
-    build: ./ballot_interface
-    command: python manage.py runserver 0.0.0.0:8000
+    command: bash ../init.sh
     ports:
       - "80:8000"
     environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      # Database connection info
+      - POSTGRES_NAME=
+      - POSTGRES_USER=
+      - POSTGRES_PASSWORD=
+      # Django secret key
+      # Visit https://djecrety.ir/ to create new one
+      - SECRET_KEY=
+      # Blockchain account to be used
+      # Visit https://metamask.io/ for more info on how to create a wallet
+      - ACCOUNT_KEY=
+      # Infura secret API key for getting provider
+      # Visit https://infura.io/ for more info on how to set Infura as a provider
+      - INFURA_API_KEY=
+      # Django super user login info
+      - DJANGO_SUPERUSER_USERNAME=
+      - DJANGO_SUPERUSER_PASSWORD=
+      - DJANGO_SUPERUSER_EMAIL=
     depends_on:
-      - interface-db
+      - mgmt-db
+  
