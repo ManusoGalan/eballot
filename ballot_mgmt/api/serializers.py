@@ -3,7 +3,8 @@ from web3.middleware import geth_poa_middleware
 
 from .contract import get_abi, get_bytecode
 
-from datetime import datetime, timezone
+from datetime import datetime
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import BallotBox, Candidate
@@ -18,14 +19,14 @@ class BallotBoxCreateOrUpdateSerializer(serializers.ModelSerializer):
     
     # Here, instead of calling validate(), we call validate_<field_name>(), which valdiates that one field
     def validate_start_datetime(self, value):
-        if value < datetime.now(timezone.utc):
+        if value < timezone.now():
             raise serializers.ValidationError('Start datetime must be before creation datetime')
         
         return value
     
     def validate_end_datetime(self, value):
-        datetime_without_timezone = datetime.fromisoformat(self.initial_data['start_datetime'].replace("Z", "+00:00"))
-        if value < datetime.combine(datetime_without_timezone.date(), datetime_without_timezone.time(), tzinfo=timezone.utc):
+        start_datetime_without_timezone = datetime.fromisoformat(self.initial_data['start_datetime'])
+        if value < datetime.combine(start_datetime_without_timezone.date(), start_datetime_without_timezone.time(), tzinfo=timezone.get_current_timezone()):
             raise serializers.ValidationError('End datetime must be after start datetime')
         
         return value
@@ -116,7 +117,7 @@ class CandidateRetrieveForBallotSerializer(serializers.ModelSerializer):
         fields = ['pk_inside_ballot', 'name', 'result']
         
     def get_result(self, candidate):
-        if(candidate.ballot_parent.end_datetime < datetime.now(timezone.utc)):
+        if(candidate.ballot_parent.end_datetime < timezone.now()):
             w3 = Web3(HTTPProvider('https://polygon-mumbai.infura.io/v3/' + os.environ['INFURA_API_KEY']))
             w3.middleware_onion.inject(geth_poa_middleware, layer=0)
             
