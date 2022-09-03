@@ -1,7 +1,15 @@
+from web3 import Web3, HTTPProvider
+from web3.middleware import geth_poa_middleware
+
+from .contract import get_abi, get_bytecode
+
 from datetime import datetime, timezone
 from rest_framework import serializers
 
 from .models import BallotBox, Candidate
+
+import os
+from dotenv import load_dotenv, find_dotenv
 
 class BallotBoxCreateOrUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,10 +59,51 @@ class CandidateCreateSerializer(serializers.ModelSerializer):
         
     def validate(self, attrs):
         attrs['ballot_parent'] = BallotBox.objects.get(id=self.context['ballot_parent_id'])
-        attrs['pk_inside_ballot'] = int(self.context["last_candidate_id"]) + 1
+        attrs['pk_inside_ballot'] = int(self.context['last_candidate_id']) + 1
         
         return super().validate(attrs)
     
+    def create(self, validated_data):
+        self.deploy_contract(validated_data)
+        return super().create(validated_data)
+    
+    def deploy_contract(self, validated_data):
+        load_dotenv(find_dotenv())
+        
+        w3 = Web3(HTTPProvider('https://polygon-mumbai.infura.io/v3/' + os.environ['INFURA_API_KEY']))
+        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        
+        admin_account = w3.eth.account.privateKeyToAccount(os.environ['ACCOUNT_KEY'])
+        contract = w3.eth.contract(abi=get_abi(), bytecode=get_bytecode())
+        
+        candidateNames = []
+        candidatesPositionInsideBallot = []
+        for candidate in Candidate.objects.all().filter(ballot_parent_id=validated_data['ballot_parent'].id):
+            candidateNames.append(Web3.toHex(text=candidate.name))
+            candidatesPositionInsideBallot.append(candidate.pk_inside_ballot)
+        candidateNames.append(Web3.toHex(text=validated_data['name']))
+        candidatesPositionInsideBallot.append(validated_data['pk_inside_ballot'])
+        
+        txn = \
+            contract.constructor(
+                candidateNames,
+                candidatesPositionInsideBallot,
+                int(datetime.timestamp(validated_data['ballot_parent'].start_datetime)), 
+                int(datetime.timestamp(validated_data['ballot_parent'].end_datetime))
+            ).buildTransaction(
+                {
+                    'from': admin_account.address,
+                    'nonce': w3.eth.getTransactionCount(admin_account.address),
+                }
+            ); 
+        signed_txn = admin_account.signTransaction(txn)
+            
+        txn_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
+        
+        validated_data['ballot_parent'].contract_address = txn_receipt['contractAddress']
+        validated_data['ballot_parent'].save()
+        
 class CandidateListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
@@ -68,7 +117,14 @@ class CandidateRetrieveForBallotSerializer(serializers.ModelSerializer):
         
     def get_result(self, candidate):
         if(candidate.ballot_parent.end_datetime < datetime.now(timezone.utc)):
-            return 100
+            w3 = Web3(HTTPProvider('https://polygon-mumbai.infura.io/v3/' + os.environ['INFURA_API_KEY']))
+            w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            
+            contract = w3.eth.contract(abi=get_abi(), address=candidate.ballot_parent.contract_address)
+            
+            result = contract.functions.getProposalVoteCount(candidate.pk_inside_ballot, int(datetime.timestamp(timezone.now()))).call()
+            
+            return result
 
         return None
     
