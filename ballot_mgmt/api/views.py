@@ -80,7 +80,7 @@ class CandidateView(mixins.ListModelMixin,
             if last_candidate_for_ballot is not None:
                 context.update({"last_candidate_id": last_candidate_for_ballot.pk_inside_ballot})
             else:
-                context.update({"last_candidate_id": 0})
+                context.update({"last_candidate_id": -1})
             
         return context
     
@@ -100,8 +100,6 @@ class CandidateView(mixins.ListModelMixin,
         
         super().create(request, *args, **kwargs)
         
-        # From this point on, we treat the petition as a GET petition
-        self.action = 'list'
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         
@@ -121,7 +119,4 @@ class ContractView(mixins.RetrieveModelMixin,
     serializer_class = BallotBoxContractAddressSerializer
     permission_classes = [permissions.IsAdminUser|permissions.IsAuthenticatedOrReadOnly]
     authentication_classes = [authentication.SessionAuthentication, authentication.TokenAuthentication]
-    
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
     
