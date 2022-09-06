@@ -1,7 +1,5 @@
-from datetime import datetime, timedelta, timezone
-from unicodedata import name
-from unittest.mock import patch
-from urllib import response
+from datetime import timedelta
+from django.utils import timezone
 
 from django.contrib.auth.models import User
 from django.core.files.images import ImageFile
@@ -25,13 +23,13 @@ class BallotViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_ballot(self):
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -41,13 +39,13 @@ class BallotViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
     def test_get_ballot_with_candidates(self):
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -67,13 +65,13 @@ class BallotViewTest(APITestCase):
         self.assertTrue(response.data['candidates'][0]["result"] is None)
         
     def test_get_finished_ballot_with_candidates(self):
-        start_datetime = datetime.now(timezone.utc) - timedelta(hours=10)
-        end_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
+        start_datetime = timezone.now() - timedelta(hours=10)
+        end_datetime = timezone.now() - timedelta(hours=1)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -97,13 +95,13 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() - timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
             'name': 'Test',
-            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime,
+            'end_datetime': end_datetime
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -112,13 +110,13 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=11)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=20)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
             'name': 'Test',
-            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime,
+            'end_datetime': end_datetime
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -127,12 +125,12 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
-            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime,
+            'end_datetime': end_datetime
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -141,13 +139,13 @@ class BallotCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         response = self.client.post('/api/ballot', {
             'name': 'Test',
-            'start_datetime': start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'end_datetime': end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': start_datetime,
+            'end_datetime': end_datetime
         })
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -157,13 +155,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -178,13 +176,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() - timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -199,21 +197,21 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
         
-        newInitTimestamp = datetime.now(timezone.utc) - timedelta(hours=1)
+        newInitTimestamp = timezone.now() - timedelta(hours=1)
         
         response = self.client.patch('/api/ballot/' + str(ballot.id), {
-            'start_datetime': newInitTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': newInitTimestamp.strftime("%Y-%m-%dT%H:%M:%S")
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -222,13 +220,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -236,7 +234,7 @@ class BallotUpdateTest(APITestCase):
         newEndTimestamp = start_datetime - timedelta(hours=1)
         
         response = self.client.patch('/api/ballot/' + str(ballot.id), {
-            'start_datetime': newEndTimestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+            'start_datetime': newEndTimestamp.strftime("%Y-%m-%dT%H:%M:%S")
         })
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -245,13 +243,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -266,13 +264,13 @@ class BallotUpdateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -288,13 +286,13 @@ class BallotDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -307,13 +305,13 @@ class BallotDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() - timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -326,13 +324,13 @@ class BallotDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -343,13 +341,13 @@ class BallotDeleteTest(APITestCase):
     
 class CandidateListTest(APITestCase):
     def test_get_candidate_inexistent_ballot(self):
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -368,13 +366,13 @@ class CandidateListTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_candidate_empty_ballot(self):
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -384,13 +382,13 @@ class CandidateListTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
     
     def test_get_candidate_ballot(self):
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -413,13 +411,13 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -436,13 +434,13 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -455,13 +453,13 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() - timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -478,13 +476,13 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -501,13 +499,13 @@ class CandidateCreateTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         ballot.save()
@@ -532,13 +530,13 @@ class CandidateDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -560,13 +558,13 @@ class CandidateDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -588,13 +586,13 @@ class CandidateDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) - timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() - timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -616,13 +614,13 @@ class CandidateDeleteTest(APITestCase):
         admin_user = User.objects.create(username='admin', is_staff=True)
         self.client.force_authenticate(user=admin_user)
         
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
         )
         
         candidate = Candidate(
@@ -647,13 +645,13 @@ class ContratctAddressViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_ballot(self):
-        start_datetime = datetime.now(timezone.utc) + timedelta(hours=1)
-        end_datetime = datetime.now(timezone.utc) + timedelta(hours=10)
+        start_datetime = timezone.now() + timedelta(hours=1)
+        end_datetime = timezone.now() + timedelta(hours=10)
         
         ballot = BallotBox(
             name = 'Test',
-            start_datetime = start_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            end_datetime = end_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            start_datetime = start_datetime,
+            end_datetime = end_datetime,
             contract_address = "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
         )
         
