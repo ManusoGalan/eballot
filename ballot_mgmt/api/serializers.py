@@ -89,8 +89,8 @@ class CandidateCreateSerializer(serializers.ModelSerializer):
             contract.constructor(
                 candidateNames,
                 candidatesPositionInsideBallot,
-                int(datetime.timestamp(validated_data['ballot_parent'].start_datetime)), 
-                int(datetime.timestamp(validated_data['ballot_parent'].end_datetime))
+                int(datetime.timestamp(validated_data['ballot_parent'].end_datetime)),
+                int(datetime.timestamp(validated_data['ballot_parent'].start_datetime))
             ).buildTransaction(
                 {
                     'from': admin_account.address,
